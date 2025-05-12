@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>booknesг</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f9f9f9;
+      text-align: center;
+      padding: 40px;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 16px;
+      width: 250px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-left: 10px;
+      background: #d85ac5;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #434190;
+    }
+
+    .result {
+      margin-top: 30px;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .book-card {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    img {
+      max-width: 100px;
+      float: left;
+      margin-right: 20px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>find the books </h1>
+
+  <input type="text" id="bookInput" placeholder="Введите название книги">
+  <button id="searchBtn">search</button>
+
+  <div class="result" id="result"></div>
+
+  <script>
+    const searchBtn = document.getElementById('searchBtn');
+    const bookInput = document.getElementById('bookInput');
+    const resultDiv = document.getElementById('result');
+
+    searchBtn.addEventListener('click', async () => {
+      const query = bookInput.value.trim();
+      if (!query) return;
+
+      const url = `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+
+        if (!data.items || data.items.length === 0) {
+          resultDiv.innerHTML = 'Ничего не найдено';
+          return;
+        }
+
+        resultDiv.innerHTML = '';
+
+        data.items.forEach(book => {
+          const info = book.volumeInfo;
+
+          const title = info.title || 'Без названия';
+          const authors = info.authors ? info.authors.join(', ') : 'Автор не указан';
+          const description = info.description ? info.description.slice(0, 300) + '...' : 'Описание отсутствует';
+          const image = info.imageLinks?.thumbnail || '';
+
+          const card = document.createElement('div');
+          card.className = 'book-card';
+
+          card.innerHTML = `
+            ${image ? `<img src="${image}" alt="Обложка">` : ''}
+            <h2>${title}</h2>
+            <p><strong>Автор(ы):</strong> ${authors}</p>
+            <p>${description}</p>
+            <div style="clear:both;"></div>
+          `;
+
+          resultDiv.appendChild(card);
+        });
+
+      } catch (error) {
+        resultDiv.innerHTML = 'Ошибка при загрузке данных';
+        console.error(error);
+      }
+    });
+  </script>
+
+</body>
+</html>
