@@ -1,1 +1,1 @@
-https://github.com/AbdykulL/api1
+https://abdykull.github.io/api1/
